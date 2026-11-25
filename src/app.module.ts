@@ -1,10 +1,12 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AuthModule } from './auth/auth.module';
 import { EnvConfig, validateEnv } from './config/env.validation';
 import { buildDataSourceOptions } from './database/typeorm.config';
 import { HealthModule } from './health/health.module';
 import { JobsModule } from './jobs/jobs.module';
+import { UsersModule } from './users/users.module';
 import { WorkstationsModule } from './workstations/workstations.module';
 
 @Module({
@@ -28,6 +30,8 @@ import { WorkstationsModule } from './workstations/workstations.module';
           DB_NAME: config.get('DB_NAME', { infer: true }),
         }),
     }),
+    AuthModule,
+    UsersModule,
     HealthModule,
     WorkstationsModule,
     JobsModule,

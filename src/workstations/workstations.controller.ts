@@ -1,13 +1,17 @@
 import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post } from '@nestjs/common';
-import { ApiConflictResponse, ApiNotFoundResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiConflictResponse, ApiNotFoundResponse, ApiTags } from '@nestjs/swagger';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { ALL_ROLES, Role } from '../auth/role.enum';
 import { ParseIdPipe } from '../common/pipes/parse-id.pipe';
 import { CreateWorkstationDto } from './dto/create-workstation.dto';
 import { UpdateWorkstationDto } from './dto/update-workstation.dto';
 import { Workstation } from './workstation.entity';
 import { WorkstationsService } from './workstations.service';
 
-// Phase 3 restricts these to the admin role.
+/** Writes are admin-only (class level); reads are opened up per method. */
 @ApiTags('workstations')
+@ApiBearerAuth()
+@Roles(Role.ADMIN)
 @Controller('workstations')
 export class WorkstationsController {
   constructor(private readonly service: WorkstationsService) {}
@@ -18,12 +22,15 @@ export class WorkstationsController {
     return this.service.create(dto);
   }
 
+  // Planners pick a workstation when assigning; operators see where they work.
   @Get()
+  @Roles(...ALL_ROLES)
   findAll(): Promise<Workstation[]> {
     return this.service.findAll();
   }
 
   @Get(':id')
+  @Roles(...ALL_ROLES)
   @ApiNotFoundResponse()
   findOne(@Param('id', ParseIdPipe) id: number): Promise<Workstation> {
     return this.service.findOne(id);

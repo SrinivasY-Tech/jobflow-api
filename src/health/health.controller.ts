@@ -1,6 +1,7 @@
 import { Controller, Get, ServiceUnavailableException } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
+import { Public } from '../auth/decorators/public.decorator';
 
 export interface HealthResponse {
   status: 'ok';
@@ -8,6 +9,7 @@ export interface HealthResponse {
   uptimeSeconds: number;
 }
 
+@Public() // probes from Docker / load balancers don't carry tokens
 @Controller('health')
 export class HealthController {
   constructor(@InjectDataSource() private readonly dataSource: DataSource) {}

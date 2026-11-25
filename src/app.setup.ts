@@ -24,6 +24,7 @@ export function setupSwagger(app: INestApplication): void {
     .setTitle('jobflow-api')
     .setDescription('Learning project: concurrency-safe job assignment with NestJS + PostgreSQL')
     .setVersion('0.1.0')
+    .addBearerAuth() // "Authorize" button: paste the accessToken from POST /auth/login
     .build();
   SwaggerModule.setup('docs', app, SwaggerModule.createDocument(app, config));
 }
