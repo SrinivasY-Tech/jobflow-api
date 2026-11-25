@@ -1,11 +1,13 @@
 /**
  * Validates process.env once at startup and returns a typed config object.
- * Failing fast here means a missing DB_PASSWORD crashes the app on boot with a
- * clear message, instead of surfacing later as a confusing connection error.
+ * Failing fast here means a missing DB_PASSWORD or JWT_SECRET crashes the app
+ * on boot with a clear message, instead of surfacing later as a confusing error.
+ *
+ * Split in two so that DB-only tools (migration CLI, scripts) don't need
+ * app secrets such as JWT_SECRET.
  */
-export interface EnvConfig {
+export interface DbEnvConfig {
   NODE_ENV: 'development' | 'test' | 'production';
-  PORT: number;
   DB_HOST: string;
   DB_PORT: number;
   DB_USER: string;
@@ -13,7 +15,14 @@ export interface EnvConfig {
   DB_NAME: string;
 }
 
-const NODE_ENVS: ReadonlyArray<EnvConfig['NODE_ENV']> = ['development', 'test', 'production'];
+export interface EnvConfig extends DbEnvConfig {
+  PORT: number;
+  JWT_SECRET: string;
+  JWT_EXPIRES_IN_SECONDS: number;
+}
+
+const NODE_ENVS: ReadonlyArray<DbEnvConfig['NODE_ENV']> = ['development', 'test', 'production'];
+const JWT_SECRET_MIN_LENGTH = 32;
 
 function requireString(env: Record<string, unknown>, key: string, errors: string[]): string {
   const value = env[key];
@@ -24,41 +33,69 @@ function requireString(env: Record<string, unknown>, key: string, errors: string
   return value;
 }
 
-function requirePort(
+function requireInt(
   env: Record<string, unknown>,
   key: string,
   errors: string[],
   fallback: number,
+  min: number,
+  max: number,
 ): number {
   const raw = env[key];
   if (raw === undefined || raw === '') return fallback;
   const value = Number(raw);
-  if (!Number.isInteger(value) || value < 1 || value > 65535) {
-    errors.push(`${key} must be an integer between 1 and 65535 (got "${String(raw)}")`);
+  if (!Number.isInteger(value) || value < min || value > max) {
+    errors.push(`${key} must be an integer between ${min} and ${max} (got "${String(raw)}")`);
   }
   return value;
 }
 
-export function validateEnv(env: Record<string, unknown>): EnvConfig {
-  const errors: string[] = [];
+function throwIfErrors(errors: string[]): void {
+  if (errors.length > 0) {
+    throw new Error(`Invalid environment configuration:\n  - ${errors.join('\n  - ')}`);
+  }
+}
 
-  const nodeEnv = (env.NODE_ENV ?? 'development') as EnvConfig['NODE_ENV'];
+function collectDbEnv(env: Record<string, unknown>, errors: string[]): DbEnvConfig {
+  const nodeEnv = (env.NODE_ENV ?? 'development') as DbEnvConfig['NODE_ENV'];
   if (!NODE_ENVS.includes(nodeEnv)) {
     errors.push(`NODE_ENV must be one of ${NODE_ENVS.join(', ')}`);
   }
-
-  const config: EnvConfig = {
+  return {
     NODE_ENV: nodeEnv,
-    PORT: requirePort(env, 'PORT', errors, 3000),
     DB_HOST: requireString(env, 'DB_HOST', errors),
-    DB_PORT: requirePort(env, 'DB_PORT', errors, 5432),
+    DB_PORT: requireInt(env, 'DB_PORT', errors, 5432, 1, 65535),
     DB_USER: requireString(env, 'DB_USER', errors),
     DB_PASSWORD: requireString(env, 'DB_PASSWORD', errors),
     DB_NAME: requireString(env, 'DB_NAME', errors),
   };
+}
 
-  if (errors.length > 0) {
-    throw new Error(`Invalid environment configuration:\n  - ${errors.join('\n  - ')}`);
+/** Database settings only: used by the TypeORM CLI and scripts. */
+export function validateDbEnv(env: Record<string, unknown>): DbEnvConfig {
+  const errors: string[] = [];
+  const config = collectDbEnv(env, errors);
+  throwIfErrors(errors);
+  return config;
+}
+
+/** Everything the HTTP app needs. */
+export function validateEnv(env: Record<string, unknown>): EnvConfig {
+  const errors: string[] = [];
+  const db = collectDbEnv(env, errors);
+
+  const jwtSecret = requireString(env, 'JWT_SECRET', errors);
+  if (jwtSecret && jwtSecret.length < JWT_SECRET_MIN_LENGTH) {
+    errors.push(`JWT_SECRET must be at least ${JWT_SECRET_MIN_LENGTH} characters`);
   }
+
+  const config: EnvConfig = {
+    ...db,
+    PORT: requireInt(env, 'PORT', errors, 3000, 1, 65535),
+    JWT_SECRET: jwtSecret,
+    // Default 15 minutes. Short-lived because access tokens cannot be revoked.
+    JWT_EXPIRES_IN_SECONDS: requireInt(env, 'JWT_EXPIRES_IN_SECONDS', errors, 900, 60, 86_400),
+  };
+  throwIfErrors(errors);
   return config;
 }

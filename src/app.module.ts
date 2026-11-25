@@ -21,7 +21,6 @@ import { WorkstationsModule } from './workstations/workstations.module';
       useFactory: (config: ConfigService<EnvConfig, true>) =>
         buildDataSourceOptions({
           NODE_ENV: config.get('NODE_ENV', { infer: true }),
-          PORT: config.get('PORT', { infer: true }),
           DB_HOST: config.get('DB_HOST', { infer: true }),
           DB_PORT: config.get('DB_PORT', { infer: true }),
           DB_USER: config.get('DB_USER', { infer: true }),
