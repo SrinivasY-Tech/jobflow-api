@@ -25,8 +25,9 @@ Jest + supertest · class-validator · Swagger/OpenAPI · JWT with roles · GitH
   at one job and asserts **exactly one 201 and 49 clean 409s**. I also removed each safeguard to show
   what breaks: [results](docs/postgres-notes.md#5-concurrency-what-each-safeguard-prevents-measured).
 - **Query tuning with evidence.** 200k seeded jobs, `EXPLAIN (ANALYZE, BUFFERS)` before and after a
-  composite index and a partial index. The NEW-queue page went from **1,919 buffers / 12.6 ms to
-  23 buffers / 0.14 ms**. The plans are saved in [`docs/explain/`](docs/explain/).
+  composite index and a partial index. The NEW-queue page went from **~1,900 buffers / 12–18 ms
+  (full scan + sort) to 23 buffers / ~0.14 ms (index scan)**, reproduced on a fresh clone. The plans
+  are saved in [`docs/explain/`](docs/explain/).
 - **Schema owned by migrations.** Hand-written SQL migrations, `synchronize` never enabled,
   `CREATE INDEX CONCURRENTLY`, a drift check, and CI that migrates, reverts and re-migrates an empty database.
 - **Auth with roles.** JWT access tokens, scrypt password hashing, and global guards that **fail closed**.

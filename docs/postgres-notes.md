@@ -62,6 +62,10 @@ Reproduce all plans: `bash docs/explain/run-explain.sh <label>`.
 
 Index sizes: composite **8.1 MB**, partial **1.2 MB** (6.7× smaller), pkey 4.4 MB.
 
+**Reproduced** on a fresh clone with an empty volume (new random seed): q1 went from 1,918 buffers /
+18.1 ms [Seq Scan] to 23 buffers / 0.137 ms [Index Scan composite], with the same index sizes.
+Plans and buffer counts repeat closely; times without an index vary between runs (12.6 vs 18.1 ms).
+
 Write cost (50k inserts, each in a rolled-back transaction, single run, so noisy):
 pkey only **96 ms**, + partial **156 ms**, + composite + partial **282 ms**.
 
