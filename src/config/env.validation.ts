@@ -45,7 +45,8 @@ function requireInt(
   if (raw === undefined || raw === '') return fallback;
   const value = Number(raw);
   if (!Number.isInteger(value) || value < min || value > max) {
-    errors.push(`${key} must be an integer between ${min} and ${max} (got "${String(raw)}")`);
+    const shown = typeof raw === 'string' ? raw : JSON.stringify(raw);
+    errors.push(`${key} must be an integer between ${min} and ${max} (got "${shown}")`);
   }
   return value;
 }

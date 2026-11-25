@@ -2,8 +2,6 @@ import { UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { EnvConfig } from '../config/env.validation';
-import { PasswordHasher } from '../users/password-hasher';
-import { User } from '../users/user.entity';
 import { UsersService } from '../users/users.service';
 import { AuthService } from './auth.service';
 import { Role } from './role.enum';
@@ -20,7 +18,7 @@ describe('AuthService.login', () => {
     jest.clearAllMocks();
     service = new AuthService(
       users as unknown as UsersService,
-      hasher as unknown as PasswordHasher,
+      hasher,
       jwt as unknown as JwtService,
       config as unknown as ConfigService<EnvConfig, true>,
     );
@@ -28,7 +26,7 @@ describe('AuthService.login', () => {
   });
 
   it('returns a bearer token with sub and role for valid credentials', async () => {
-    users.findByEmailWithPassword.mockResolvedValue({ id: 4, role: Role.OPERATOR, passwordHash: 'h' } as User);
+    users.findByEmailWithPassword.mockResolvedValue({ id: 4, role: Role.OPERATOR, passwordHash: 'h' });
     hasher.verify.mockResolvedValue(true);
 
     await expect(service.login({ email: 'op@example.com', password: 'pw' })).resolves.toEqual({
@@ -40,7 +38,7 @@ describe('AuthService.login', () => {
   });
 
   it('rejects a wrong password with the generic message', async () => {
-    users.findByEmailWithPassword.mockResolvedValue({ id: 4, role: Role.OPERATOR, passwordHash: 'h' } as User);
+    users.findByEmailWithPassword.mockResolvedValue({ id: 4, role: Role.OPERATOR, passwordHash: 'h' });
     hasher.verify.mockResolvedValue(false);
     await expect(service.login({ email: 'op@example.com', password: 'bad' })).rejects.toThrow(
       new UnauthorizedException('Invalid email or password'),
