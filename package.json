@@ -14,12 +14,15 @@
     "migration:show": "npm run typeorm -- migration:show",
     "migration:create": "node -r ts-node/register node_modules/typeorm/cli.js migration:create",
     "migration:run:prod": "node node_modules/typeorm/cli.js -d dist/database/data-source.js migration:run",
-    "migration:check": "npm run typeorm -- migration:generate src/database/migrations/SchemaDrift --check"
+    "migration:check": "npm run typeorm -- migration:generate src/database/migrations/SchemaDrift --check",
+    "user:create": "node --env-file=.env -r ts-node/register src/scripts/create-user.ts",
+    "user:create:prod": "node dist/scripts/create-user.js"
   },
   "dependencies": {
     "@nestjs/common": "^11.2.12",
     "@nestjs/config": "^4.0.4",
     "@nestjs/core": "^11.2.12",
+    "@nestjs/jwt": "^11.0.2",
     "@nestjs/platform-express": "^11.2.12",
     "@nestjs/swagger": "^11.4.8",
     "@nestjs/typeorm": "^11.0.3",

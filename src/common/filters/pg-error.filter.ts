@@ -19,6 +19,8 @@ const CONSTRAINT_MESSAGES: Record<string, string> = {
   ck_workstations_capacity_positive: 'capacity must be greater than 0',
   ck_jobs_priority_range: 'priority must be between 1 and 5',
   ck_jobs_status: 'status is not valid',
+  uq_users_email: 'A user with this email already exists',
+  ck_users_role: 'role is not valid',
 };
 
 interface PgDriverError {
