@@ -11,6 +11,8 @@ const PG = {
   FOREIGN_KEY_VIOLATION: '23503',
   CHECK_VIOLATION: '23514',
   NOT_NULL_VIOLATION: '23502',
+  LOCK_NOT_AVAILABLE: '55P03', // lock_timeout expired
+  DEADLOCK_DETECTED: '40P01',
 } as const;
 
 /** Human-friendly messages for named constraints. Unknown names get a generic message. */
@@ -21,6 +23,10 @@ const CONSTRAINT_MESSAGES: Record<string, string> = {
   ck_jobs_status: 'status is not valid',
   uq_users_email: 'A user with this email already exists',
   ck_users_role: 'role is not valid',
+  uq_assignments_active_job: 'Job already has an active assignment',
+  fk_assignments_workstation:
+    'Workstation has assignment history and cannot be deleted; deactivate it instead',
+  fk_assignments_job: 'Job has assignment history and cannot be deleted',
 };
 
 interface PgDriverError {
@@ -56,6 +62,15 @@ export class PgErrorFilter implements ExceptionFilter {
           statusCode: HttpStatus.CONFLICT,
           error: 'Conflict',
           message: message ?? 'Resource is referenced by other records',
+        });
+        return;
+      case PG.LOCK_NOT_AVAILABLE:
+      case PG.DEADLOCK_DETECTED:
+        // Safe to retry: the transaction was rolled back and nothing changed.
+        res.status(HttpStatus.CONFLICT).json({
+          statusCode: HttpStatus.CONFLICT,
+          error: 'Conflict',
+          message: 'The resource is busy (locked by another request); please retry',
         });
         return;
       case PG.CHECK_VIOLATION:
