@@ -23,7 +23,15 @@ export class AddJobsStatusPriorityIndex1795600004000 implements MigrationInterfa
     `);
   }
 
+  /**
+   * TypeORM's migration:revert always wraps down() in a transaction (it ignores
+   * `transaction = false`), so DROP INDEX CONCURRENTLY is impossible here.
+   * A plain DROP INDEX is a quick catalog change, but it needs an exclusive lock
+   * on jobs. lock_timeout makes it fail fast instead of queueing behind a long
+   * query while every new query queues behind it.
+   */
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`DROP INDEX CONCURRENTLY IF EXISTS ix_jobs_status_priority_created_id`);
+    await queryRunner.query(`SET LOCAL lock_timeout = '5s'`);
+    await queryRunner.query(`DROP INDEX IF EXISTS ix_jobs_status_priority_created_id`);
   }
 }

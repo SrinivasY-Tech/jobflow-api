@@ -207,6 +207,10 @@ workstation), so no two transactions can wait on each other in a cycle.
 - **`CREATE INDEX CONCURRENTLY`** doesn't block writes but can't run in a transaction. The index
   migrations set `transaction = false`, and migrations run with `-t each`. If it fails midway, it
   leaves an `INVALID` index that must be dropped (`\d jobs` shows it).
+  **Gotcha found by CI's revert step:** TypeORM's `migration:revert` always wraps `down()` in a
+  transaction (it ignores `transaction = false`; see `MigrationExecutor.undoLastMigration`), so
+  `DROP INDEX CONCURRENTLY` fails there. `down()` uses a plain `DROP INDEX` behind
+  `SET LOCAL lock_timeout = '5s'`, so a blocked drop fails fast instead of queueing.
 - **TypeORM `migration:generate` would have dropped data**: changing `varchar(200)` to `(150)` in
   the entity produced `DROP COLUMN title; ADD title` instead of `ALTER COLUMN … TYPE`. Migrations
   here are hand-written and reviewed; `npm run migration:check` only detects drift.
