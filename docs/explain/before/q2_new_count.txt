@@ -1,0 +1,23 @@
+-- q2_new_count
+-- SELECT COUNT(1) FROM jobs WHERE status = 'NEW'
+
+                                                             QUERY PLAN                                                             
+------------------------------------------------------------------------------------------------------------------------------------
+ Finalize Aggregate  (cost=4382.63..4382.64 rows=1 width=8) (actual time=10.429..12.553 rows=1 loops=1)
+   Buffers: shared hit=1868
+   ->  Gather  (cost=4382.52..4382.63 rows=1 width=8) (actual time=10.047..12.547 rows=2 loops=1)
+         Workers Planned: 1
+         Workers Launched: 1
+         Buffers: shared hit=1868
+         ->  Partial Aggregate  (cost=3382.52..3382.53 rows=1 width=8) (actual time=7.940..7.941 rows=1 loops=2)
+               Buffers: shared hit=1868
+               ->  Parallel Seq Scan on jobs  (cost=0.00..3338.65 rows=17550 width=0) (actual time=0.010..7.124 rows=15054 loops=2)
+                     Filter: ((status)::text = 'NEW'::text)
+                     Rows Removed by Filter: 84950
+                     Buffers: shared hit=1868
+ Planning:
+   Buffers: shared hit=66
+ Planning Time: 0.449 ms
+ Execution Time: 12.634 ms
+(16 rows)
+

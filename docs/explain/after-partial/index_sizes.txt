@@ -1,0 +1,7 @@
+               index                |  size   
+------------------------------------+---------
+ ix_jobs_open_queue                 | 1208 kB
+ ix_jobs_status_priority_created_id | 8128 kB
+ jobs_pkey                          | 4408 kB
+(3 rows)
+

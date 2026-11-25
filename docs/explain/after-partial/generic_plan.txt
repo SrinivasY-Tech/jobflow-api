@@ -1,0 +1,10 @@
+-- custom plan (planned with the actual value NEW): what node-postgres unnamed statements get
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Execution Time: 0.150 ms
+-- generic plan (value unknown at plan time): what a cached named prepared statement may switch to
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Execution Time: 0.052 ms
+-- generic plan with ONLY the partial index available (rolled back)
+--------------------------------------------------------------------------------------------------------------------------------------
+               ->  Parallel Seq Scan on jobs  (cost=0.00..5308.24 rows=62353 width=14) (actual time=0.009..12.548 rows=15054 loops=2)
+ Execution Time: 19.871 ms

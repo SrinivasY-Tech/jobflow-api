@@ -1,0 +1,15 @@
+-- 50k inserts with pkey + composite + partial
+Time: 0.128 ms
+Time: 282.159 ms
+Time: 0.247 ms
+-- 50k inserts with pkey + partial only
+Time: 0.170 ms
+Time: 1.239 ms
+Time: 155.829 ms
+Time: 0.189 ms
+-- 50k inserts with pkey only
+Time: 0.138 ms
+Time: 0.801 ms
+Time: 0.480 ms
+Time: 96.410 ms
+Time: 0.178 ms

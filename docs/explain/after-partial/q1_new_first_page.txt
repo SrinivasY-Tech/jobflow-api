@@ -1,0 +1,16 @@
+-- q1_new_first_page
+-- SELECT "id", "title", "status", "priority", "created_at", "updated_at" FROM jobs WHERE status = 'NEW' ORDER BY priority DESC, created_at ASC, id ASC LIMIT 20 OFFSET 0
+
+                                                                       QUERY PLAN                                                                       
+--------------------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=0.42..5.20 rows=20 width=42) (actual time=0.101..0.260 rows=20 loops=1)
+   Buffers: shared hit=23
+   ->  Index Scan using ix_jobs_status_priority_created_id on jobs  (cost=0.42..7137.99 rows=29835 width=42) (actual time=0.100..0.255 rows=20 loops=1)
+         Index Cond: ((status)::text = 'NEW'::text)
+         Buffers: shared hit=23
+ Planning:
+   Buffers: shared hit=161
+ Planning Time: 1.672 ms
+ Execution Time: 0.305 ms
+(9 rows)
+

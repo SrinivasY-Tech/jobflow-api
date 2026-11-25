@@ -1,0 +1,52 @@
+-- Hypothetical: ONLY the partial index (composite dropped inside a transaction, then ROLLBACK)
+-- q1 page 1 of the NEW queue
+                                                               QUERY PLAN                                                               
+----------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=0.29..5.84 rows=20 width=42) (actual time=0.019..0.119 rows=20 loops=1)
+   Buffers: shared hit=22
+   ->  Index Scan using ix_jobs_open_queue on jobs  (cost=0.29..8288.40 rows=29835 width=42) (actual time=0.019..0.117 rows=20 loops=1)
+         Buffers: shared hit=22
+ Planning:
+   Buffers: shared hit=119
+ Planning Time: 0.752 ms
+ Execution Time: 0.144 ms
+(8 rows)
+
+-- q2 count of NEW
+                                                                  QUERY PLAN                                                                   
+-----------------------------------------------------------------------------------------------------------------------------------------------
+ Aggregate  (cost=1122.40..1122.41 rows=1 width=8) (actual time=3.990..3.992 rows=1 loops=1)
+   Buffers: shared hit=151
+   ->  Index Only Scan using ix_jobs_open_queue on jobs  (cost=0.29..1047.81 rows=29835 width=0) (actual time=0.042..2.706 rows=30107 loops=1)
+         Heap Fetches: 0
+         Buffers: shared hit=151
+ Planning:
+   Buffers: shared hit=6
+ Planning Time: 0.087 ms
+ Execution Time: 4.043 ms
+(9 rows)
+
+-- q5 DONE page: the partial index cannot help (predicate does not match)
+                                                              QUERY PLAN                                                              
+--------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=6681.66..6683.96 rows=20 width=42) (actual time=20.453..23.207 rows=20 loops=1)
+   Buffers: shared hit=1919
+   ->  Gather Merge  (cost=6681.66..16807.53 rows=88051 width=42) (actual time=20.451..23.202 rows=20 loops=1)
+         Workers Planned: 1
+         Workers Launched: 1
+         Buffers: shared hit=1919
+         ->  Sort  (cost=5681.65..5901.78 rows=88051 width=42) (actual time=17.926..17.928 rows=15 loops=2)
+               Sort Key: priority DESC, created_at, id
+               Sort Method: top-N heapsort  Memory: 27kB
+               Buffers: shared hit=1919
+               Worker 0:  Sort Method: top-N heapsort  Memory: 27kB
+               ->  Parallel Seq Scan on jobs  (cost=0.00..3338.65 rows=88051 width=42) (actual time=0.010..10.720 rows=74830 loops=2)
+                     Filter: ((status)::text = 'DONE'::text)
+                     Rows Removed by Filter: 25174
+                     Buffers: shared hit=1868
+ Planning:
+   Buffers: shared hit=3
+ Planning Time: 0.140 ms
+ Execution Time: 23.338 ms
+(19 rows)
+

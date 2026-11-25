@@ -1,0 +1,5 @@
+   index   |  size   
+-----------+---------
+ jobs_pkey | 4408 kB
+(1 row)
+

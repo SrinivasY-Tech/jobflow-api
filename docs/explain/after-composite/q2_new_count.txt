@@ -1,0 +1,17 @@
+-- q2_new_count
+-- SELECT COUNT(1) FROM jobs WHERE status = 'NEW'
+
+                                                                          QUERY PLAN                                                                           
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Aggregate  (cost=1205.12..1205.13 rows=1 width=8) (actual time=3.666..3.667 rows=1 loops=1)
+   Buffers: shared hit=152
+   ->  Index Only Scan using ix_jobs_status_priority_created_id on jobs  (cost=0.42..1130.53 rows=29835 width=0) (actual time=0.044..2.500 rows=30107 loops=1)
+         Index Cond: (status = 'NEW'::text)
+         Heap Fetches: 0
+         Buffers: shared hit=152
+ Planning:
+   Buffers: shared hit=102
+ Planning Time: 0.727 ms
+ Execution Time: 3.717 ms
+(10 rows)
+

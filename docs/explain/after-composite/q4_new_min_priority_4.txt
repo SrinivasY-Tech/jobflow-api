@@ -1,0 +1,16 @@
+-- q4_new_min_priority_4
+-- SELECT "id", "title", "status", "priority", "created_at", "updated_at" FROM jobs WHERE status = 'NEW' AND priority >= 4 ORDER BY priority DESC, created_at ASC, id ASC LIMIT 20 OFFSET 0
+
+                                                                      QUERY PLAN                                                                       
+-------------------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=0.42..13.23 rows=20 width=42) (actual time=0.040..0.120 rows=20 loops=1)
+   Buffers: shared hit=23
+   ->  Index Scan using ix_jobs_status_priority_created_id on jobs  (cost=0.42..6373.05 rows=9953 width=42) (actual time=0.039..0.118 rows=20 loops=1)
+         Index Cond: (((status)::text = 'NEW'::text) AND (priority >= 4))
+         Buffers: shared hit=23
+ Planning:
+   Buffers: shared hit=145
+ Planning Time: 0.838 ms
+ Execution Time: 0.148 ms
+(9 rows)
+

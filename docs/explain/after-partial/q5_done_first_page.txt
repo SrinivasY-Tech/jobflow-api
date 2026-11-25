@@ -1,0 +1,16 @@
+-- q5_done_first_page
+-- SELECT "id", "title", "status", "priority", "created_at", "updated_at" FROM jobs WHERE status = 'DONE' ORDER BY priority DESC, created_at ASC, id ASC LIMIT 20 OFFSET 0
+
+                                                                        QUERY PLAN                                                                        
+----------------------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=0.42..2.01 rows=20 width=42) (actual time=0.042..0.149 rows=20 loops=1)
+   Buffers: shared hit=24
+   ->  Index Scan using ix_jobs_status_priority_created_id on jobs  (cost=0.42..11899.52 rows=149686 width=42) (actual time=0.041..0.146 rows=20 loops=1)
+         Index Cond: ((status)::text = 'DONE'::text)
+         Buffers: shared hit=24
+ Planning:
+   Buffers: shared hit=161
+ Planning Time: 1.346 ms
+ Execution Time: 0.183 ms
+(9 rows)
+

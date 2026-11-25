@@ -1,0 +1,26 @@
+-- q6_new_keyset_after_10000
+-- SELECT "id", "title", "status", "priority", "created_at", "updated_at" FROM jobs WHERE status = 'NEW' AND (priority < 4 OR (priority = 4 AND (created_at, id) > ('2026-11-20 06:07:29.828881+00', 14711))) ORDER BY priority DESC, created_at ASC, id ASC LIMIT 20
+
+                                                                                               QUERY PLAN                                                                                                
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=5826.85..5829.15 rows=20 width=42) (actual time=10.863..14.513 rows=20 loops=1)
+   Buffers: shared hit=1890
+   ->  Gather Merge  (cost=5826.85..7173.85 rows=11713 width=42) (actual time=10.862..14.509 rows=20 loops=1)
+         Workers Planned: 1
+         Workers Launched: 1
+         Buffers: shared hit=1890
+         ->  Sort  (cost=4826.84..4856.13 rows=11713 width=42) (actual time=8.480..8.482 rows=18 loops=2)
+               Sort Key: priority DESC, created_at, id
+               Sort Method: top-N heapsort  Memory: 27kB
+               Buffers: shared hit=1890
+               Worker 0:  Sort Method: top-N heapsort  Memory: 27kB
+               ->  Parallel Seq Scan on jobs  (cost=0.00..4515.16 rows=11713 width=42) (actual time=0.010..7.573 rows=10054 loops=2)
+                     Filter: (((status)::text = 'NEW'::text) AND ((priority < 4) OR ((priority = 4) AND (ROW(created_at, id) > ROW('2026-11-20 06:07:29.828881+00'::timestamp with time zone, 14711)))))
+                     Rows Removed by Filter: 89950
+                     Buffers: shared hit=1868
+ Planning:
+   Buffers: shared hit=103
+ Planning Time: 0.627 ms
+ Execution Time: 14.635 ms
+(19 rows)
+

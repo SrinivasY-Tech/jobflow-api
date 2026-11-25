@@ -1,0 +1,21 @@
+-- q3_new_offset_10000
+-- SELECT "id", "title", "status", "priority", "created_at", "updated_at" FROM jobs WHERE status = 'NEW' ORDER BY priority DESC, created_at ASC, id ASC LIMIT 20 OFFSET 10000
+
+                                                      QUERY PLAN                                                       
+-----------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=6524.90..6524.95 rows=20 width=42) (actual time=33.171..33.177 rows=20 loops=1)
+   Buffers: shared hit=1877
+   ->  Sort  (cost=6499.90..6574.49 rows=29835 width=42) (actual time=31.729..32.899 rows=10020 loops=1)
+         Sort Key: priority DESC, created_at, id
+         Sort Method: top-N heapsort  Memory: 1959kB
+         Buffers: shared hit=1877
+         ->  Seq Scan on jobs  (cost=0.00..4368.10 rows=29835 width=42) (actual time=0.006..12.901 rows=30107 loops=1)
+               Filter: ((status)::text = 'NEW'::text)
+               Rows Removed by Filter: 169901
+               Buffers: shared hit=1868
+ Planning:
+   Buffers: shared hit=104
+ Planning Time: 0.950 ms
+ Execution Time: 33.371 ms
+(14 rows)
+
