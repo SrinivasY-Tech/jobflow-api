@@ -1,5 +1,6 @@
 import { join } from 'node:path';
 import { DataSourceOptions } from 'typeorm';
+import { Assignment } from '../assignments/assignment.entity';
 import { DbEnvConfig } from '../config/env.validation';
 import { Job } from '../jobs/job.entity';
 import { User } from '../users/user.entity';
@@ -11,7 +12,7 @@ import { Workstation } from '../workstations/workstation.entity';
  * Windows `e:\` vs `E:\`), and Node then loads the module twice. That gives two
  * different `User` classes, and TypeORM reports "No metadata for User".
  */
-export const ENTITIES = [Workstation, Job, User];
+export const ENTITIES = [Workstation, Job, User, Assignment];
 
 /**
  * Single source of truth for the database connection. Used by:
