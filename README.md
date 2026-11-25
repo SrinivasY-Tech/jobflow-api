@@ -9,6 +9,9 @@ complete them, and a workstation never exceeds its capacity, even under many sim
 > MongoDB, using a stack I already know (NestJS, TypeScript). The domain is deliberately generic.
 > The measurements and the reasoning behind each decision are in
 > [`docs/postgres-notes.md`](docs/postgres-notes.md).
+>
+> Built with AI assistance (Claude Code) from my own specification. I am reviewing the code and
+> reproducing the tests and measurements myself, and I can explain every design decision.
 
 **Stack:** NestJS 11 · TypeScript (strict) · TypeORM 0.3 · PostgreSQL 16 · Docker Compose ·
 Jest + supertest · class-validator · Swagger/OpenAPI · JWT with roles · GitHub Actions
