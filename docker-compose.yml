@@ -32,7 +32,7 @@ services:
   # One-off job: applies pending migrations, then exits 0.
   migrate:
     <<: *app
-    command: ["node", "node_modules/typeorm/cli.js", "-d", "dist/database/data-source.js", "migration:run"]
+    command: ["node", "node_modules/typeorm/cli.js", "-d", "dist/database/data-source.js", "migration:run", "-t", "each"]
     depends_on:
       postgres:
         condition: service_healthy

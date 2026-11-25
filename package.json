@@ -9,17 +9,18 @@
     "start": "node dist/main.js",
     "start:dev": "node --env-file=.env node_modules/@nestjs/cli/bin/nest.js start --watch",
     "typeorm": "node --env-file=.env -r ts-node/register node_modules/typeorm/cli.js -d src/database/data-source.ts",
-    "migration:run": "npm run typeorm -- migration:run",
+    "migration:run": "npm run typeorm -- migration:run -t each",
     "migration:revert": "npm run typeorm -- migration:revert",
     "migration:show": "npm run typeorm -- migration:show",
     "migration:create": "node -r ts-node/register node_modules/typeorm/cli.js migration:create",
-    "migration:run:prod": "node node_modules/typeorm/cli.js -d dist/database/data-source.js migration:run",
+    "migration:run:prod": "node node_modules/typeorm/cli.js -d dist/database/data-source.js migration:run -t each",
     "migration:check": "npm run typeorm -- migration:generate src/database/migrations/SchemaDrift --check",
     "user:create": "node --env-file=.env -r ts-node/register src/scripts/create-user.ts",
     "user:create:prod": "node dist/scripts/create-user.js",
     "test": "jest",
     "test:cov": "jest --coverage",
-    "test:e2e": "jest --config test/jest-e2e.config.js --runInBand"
+    "test:e2e": "jest --config test/jest-e2e.config.js --runInBand",
+    "seed:jobs": "node --env-file=.env -r ts-node/register src/scripts/seed-jobs.ts"
   },
   "dependencies": {
     "@nestjs/common": "^11.2.12",

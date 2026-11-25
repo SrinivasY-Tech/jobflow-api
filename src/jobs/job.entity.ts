@@ -3,12 +3,20 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { JobStatus } from './job-status.enum';
 
+/**
+ * The two list indexes use DESC ordering, which TypeORM's @Index can't
+ * describe. `synchronize: false` tells the schema diff to leave them alone:
+ * the migrations own them. See docs/postgres-notes.md.
+ */
 @Entity({ name: 'jobs' })
+@Index('ix_jobs_status_priority_created_id', { synchronize: false })
+@Index('ix_jobs_open_queue', { synchronize: false })
 @Check('ck_jobs_status', `"status" IN ('NEW', 'ASSIGNED', 'DONE')`)
 @Check('ck_jobs_priority_range', '"priority" BETWEEN 1 AND 5')
 export class Job {
